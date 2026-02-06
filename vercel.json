@@ -18,9 +18,5 @@
       "schedule": "0 10 * * *"
     }
   ],
-  "env": {
-    "SUPABASE_URL": "@supabase-url",
-    "SUPABASE_KEY": "@supabase-key",
-    "ANTHROPIC_API_KEY": "@anthropic-api-key"
-  }
+
 }
