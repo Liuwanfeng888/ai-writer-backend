@@ -124,4 +124,12 @@ ${topicsText}
     const selectedIndexes = message.content[0].text
       .trim()
       .split(',')
-      .map(n => p
+      .map(n => parseInt(n.trim()) - 1)
+      .filter(i => i >= 0 && i < topics.length);
+
+    return selectedIndexes.map(i => topics[i]).slice(0, count);
+  } catch (error) {
+    console.error('AI选题失败:', error.message);
+    return topics.sort(() => 0.5 - Math.random()).slice(0, count);
+  }
+}
