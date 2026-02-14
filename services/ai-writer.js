@@ -1,7 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY
+const client = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  baseURL: 'https://api.deepseek.com'
 });
 
 const WRITING_STYLE_PROMPT = `你是一位资深情感观察类公众号作者，擅长从社会热点事件中挖掘深层人性。
@@ -21,7 +22,7 @@ const WRITING_STYLE_PROMPT = `你是一位资深情感观察类公众号作者�
 
 3. 段落结构：
    - 每段1-3句话
-   - 大量留白，呼吸感强
+   - 大量留白,呼吸感强
    - 关键句可用【】标注
 
 4. 论证方式：
@@ -58,8 +59,8 @@ ${topic.excerpt ? `【背景信息】\n${topic.excerpt}` : ''}
 
 现在开始创作：`;
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+    const message = await client.messages.create({
+      model: 'deepseek-chat',
       max_tokens: 4000,
       temperature: 0.7,
       system: WRITING_STYLE_PROMPT,
@@ -95,8 +96,8 @@ export async function selectTopics(topics, count = 2) {
       `${i + 1}. ${t.title}${t.excerpt ? `\n   简介：${t.excerpt}` : ''}`
     ).join('\n\n');
 
-    const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+    const message = await client.messages.create({
+      model: 'deepseek-chat',
       max_tokens: 1000,
       temperature: 0.3,
       messages: [
