@@ -1,9 +1,5 @@
-import Anthropic from '@anthropic-ai/sdk';
-
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-  baseURL: 'https://api.deepseek.com'
-});
+const DEEPSEEK_API_KEY = process.env.ANTHROPIC_API_KEY; // 复用这个环境变量
+const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions';
 
 const WRITING_STYLE_PROMPT = `你是一位资深情感观察类公众号作者，擅长从社会热点事件中挖掘深层人性。
 
@@ -22,7 +18,7 @@ const WRITING_STYLE_PROMPT = `你是一位资深情感观察类公众号作者�
 
 3. 段落结构：
    - 每段1-3句话
-   - 大量留白,呼吸感强
+   - 大量留白，呼吸感强
    - 关键句可用【】标注
 
 4. 论证方式：
@@ -42,6 +38,32 @@ const WRITING_STYLE_PROMPT = `你是一位资深情感观察类公众号作者�
 - 陈词滥调
 - 说教口吻`;
 
+async function callDeepSeek(messages, systemPrompt) {
+  const response = await fetch(DEEPSEEK_API_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
+    },
+    body: JSON.stringify({
+      model: 'deepseek-chat',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        ...messages
+      ],
+      temperature: 0.7,
+      max_tokens: 4000
+    })
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`DeepSeek API error: ${response.status} - ${error}`);
+  }
+
+  return await response.json();
+}
+
 export async function generateArticle(topic) {
   try {
     const userPrompt = `【今日热点话题】
@@ -59,20 +81,12 @@ ${topic.excerpt ? `【背景信息】\n${topic.excerpt}` : ''}
 
 现在开始创作：`;
 
-    const message = await client.messages.create({
-      model: 'deepseek-chat',
-      max_tokens: 4000,
-      temperature: 0.7,
-      system: WRITING_STYLE_PROMPT,
-      messages: [
-        {
-          role: 'user',
-          content: userPrompt
-        }
-      ]
-    });
+    const result = await callDeepSeek(
+      [{ role: 'user', content: userPrompt }],
+      WRITING_STYLE_PROMPT
+    );
 
-    const articleContent = message.content[0].text;
+    const articleContent = result.choices[0].message.content;
     
     const lines = articleContent.trim().split('\n').filter(line => line.trim());
     const title = lines[0].replace(/^#\s*/, '').trim();
@@ -82,7 +96,7 @@ ${topic.excerpt ? `【背景信息】\n${topic.excerpt}` : ''}
       title,
       content,
       rawResponse: articleContent,
-      usage: message.usage
+      usage: result.usage
     };
   } catch (error) {
     console.error('AI生成文章失败:', error.message);
@@ -96,14 +110,10 @@ export async function selectTopics(topics, count = 2) {
       `${i + 1}. ${t.title}${t.excerpt ? `\n   简介：${t.excerpt}` : ''}`
     ).join('\n\n');
 
-    const message = await client.messages.create({
-      model: 'deepseek-chat',
-      max_tokens: 1000,
-      temperature: 0.3,
-      messages: [
-        {
-          role: 'user',
-          content: `你是一个公众号选题编辑，专注情感观察类内容。
+    const result = await callDeepSeek(
+      [{
+        role: 'user',
+        content: `你是一个公众号选题编辑，专注情感观察类内容。
 
 以下是今日热点话题：
 
@@ -118,11 +128,12 @@ ${topicsText}
 4. 有故事性和讨论空间
 
 请只返回选中话题的序号，用逗号分隔。例如：1,5`
-        }
-      ]
-    });
+      }],
+      '你是一个专业的公众号选题编辑。'
+    );
 
-    const selectedIndexes = message.content[0].text
+    const responseText = result.choices[0].message.content;
+    const selectedIndexes = responseText
       .trim()
       .split(',')
       .map(n => parseInt(n.trim()) - 1)
