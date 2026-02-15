@@ -1,3 +1,4 @@
+import { getWeiboHot } from '../../services/weibo-hot.js';
 import { supabase } from '../../utils/supabase.js';
 import { generateArticle, selectTopics } from '../../services/ai-writer.js';
 import { formatCompleteArticle } from '../../services/formatter.js';
@@ -6,14 +7,12 @@ export default async function handler(req, res) {
   console.log('开始每日文章生成任务...');
 
   try {
-    // 模拟热点数据（实际应该调用热点API）
-    const mockTopics = [
-      { title: '测试热点话题1', excerpt: '这是一个测试话题', source: 'manual' },
-      { title: '测试热点话题2', excerpt: '这是另一个测试话题', source: 'manual' }
-    ];
-
+   // 获取微博热搜
+console.log('正在获取微博热搜...');
+const hotTopics = await getWeiboHot();
+console.log(`获取到 ${hotTopics.length} 个热搜话题`);
     console.log('正在智能选题...');
-    const selectedTopics = await selectTopics(mockTopics, 2);
+    const selectedTopics = await selectTopics(hotTopics, 2);
     console.log(`已选择 ${selectedTopics.length} 个话题进行创作`);
 
     const generatedArticles = [];
