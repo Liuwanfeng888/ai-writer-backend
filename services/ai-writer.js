@@ -84,17 +84,7 @@ ${topic.excerpt ? `【背景信息】\n${topic.excerpt}` : ''}
     
     const lines = articleContent.trim().split('\n').filter(line => line.trim());
    const title = lines[0].replace(/^#+\s*/, '').replace(/^【.*?】\s*/, '').trim();
-```
 
----
-
-# 📰 第2步：创建微博热搜爬虫
-
-**在GitHub创建新文件：**
-
-**文件名：**
-```
-services/weibo-hot.js
     const content = lines.slice(1).join('\n\n').trim();
 
     return {
