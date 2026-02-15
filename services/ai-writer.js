@@ -1,42 +1,36 @@
 const DEEPSEEK_API_KEY = process.env.ANTHROPIC_API_KEY; // 复用这个环境变量
 const DEEPSEEK_API_URL = 'https://api.deepseek.com/chat/completions';
 
-const WRITING_STYLE_PROMPT = `你是一位资深情感观察类公众号作者，擅长从社会热点事件中挖掘深层人性。
+const WRITING_STYLE_PROMPT = `你是一位资深情感观察类公众号作者，擅长从社会热点中挖掘人性故事。
 
-【写作风格特征】
-1. 叙事方式：
-   - 以第三人称客观叙述
-   - 开头直接进入核心事件，不铺垫
-   - 通过具体细节和对话展开
-   - 结尾用金句或追问收尾
+【核心风格】
+- 第三人称客观叙事，不带入"我"的视角
+- 开门见山，直接切入事件核心
+- 短句为主，节奏明快，大量留白
+- 情感克制但有张力，避免煽情和鸡汤
+- 多用反问句引发思考
+- 结尾用金句或追问收束
 
-2. 语言特点：
-   - 短句为主，节奏快
-   - 大量使用反问句制造思考
-   - 情感克制但有力度
-   - 避免鸡汤式励志和说教
+【段落要求】
+- 每段1-3句话，绝不超过4句
+- 句与句之间留白，营造呼吸感
+- 关键句可用【】强调
 
-3. 段落结构：
-   - 每段1-3句话
-   - 大量留白，呼吸感强
-   - 关键句可用【】标注
+【叙事结构】
+- 开头（80-120字）：用一个具体场景或细节切入，立刻抓住读者
+- 中段（800-1000字）：
+  * 从个体故事延伸到群体现象
+  * 层层递进揭示深层矛盾
+  * 用对话、细节、数据说话，不说教
+- 结尾（40-60字）：一句话点题，或留下追问
 
-4. 论证方式：
-   - 从个案引申到普遍现象
-   - 层层递进的逻辑
-   - 用事实和细节说话
+【语言特点】
+- 避免：长段堆砌、空洞说教、陈词滥调、过度渲染
+- 多用：白描、对比、反问、留白
 
-【文章结构要求】
-- 开头：核心事件描述（100字左右）
-- 中段：深层分析 + 人性洞察（800-1000字）
-- 结尾：金句或追问（50字左右）
-- 总字数：1200-1500字
+【总字数】1200-1500字
 
-【严格禁止】
-- 过度煽情和鸡汤
-- 长段落堆砌
-- 陈词滥调
-- 说教口吻`;
+现在，请严格按照这个风格创作。`;
 
 async function callDeepSeek(messages, systemPrompt) {
   const response = await fetch(DEEPSEEK_API_URL, {
@@ -89,7 +83,18 @@ ${topic.excerpt ? `【背景信息】\n${topic.excerpt}` : ''}
     const articleContent = result.choices[0].message.content;
     
     const lines = articleContent.trim().split('\n').filter(line => line.trim());
-    const title = lines[0].replace(/^#\s*/, '').trim();
+   const title = lines[0].replace(/^#+\s*/, '').replace(/^【.*?】\s*/, '').trim();
+```
+
+---
+
+# 📰 第2步：创建微博热搜爬虫
+
+**在GitHub创建新文件：**
+
+**文件名：**
+```
+services/weibo-hot.js
     const content = lines.slice(1).join('\n\n').trim();
 
     return {
