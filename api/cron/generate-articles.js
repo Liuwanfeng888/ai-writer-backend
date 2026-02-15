@@ -1,4 +1,4 @@
-import { getWeiboHot } from '../../services/weibo-hot.js';
+import { getWeiboHot } from '../../services/services/weibo-hot.js';
 import { supabase } from '../../utils/supabase.js';
 import { generateArticle, selectTopics } from '../../services/ai-writer.js';
 import { formatCompleteArticle } from '../../services/formatter.js';
