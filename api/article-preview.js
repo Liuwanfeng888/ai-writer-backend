@@ -12,7 +12,7 @@ export default async function handler(req, res) {
       .from('articles')
       .select('*')
       .eq('id', id)
-      .single();
+      .maybeSingle();
 
     if (error) throw error;
 
