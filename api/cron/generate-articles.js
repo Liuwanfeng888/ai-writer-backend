@@ -4,7 +4,17 @@ import { generateArticle, selectTopics } from '../../services/ai-writer.js';
 import { formatCompleteArticle } from '../../services/formatter.js';
 
 export default async function handler(req, res) {
+  // 添加CORS支持
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   console.log('开始每日文章生成任务...');
+
 
   try {
    // 获取微博热搜
