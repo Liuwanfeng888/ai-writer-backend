@@ -81,10 +81,4 @@ export default async function handler(req, res) {
     res.status(500).send('<html><body><h1>服务器错误</h1><pre>' + error.message + '</pre></body></html>');
   }
 }
-```
 
----
-
-**修改并提交后，等2分钟，然后再访问：**
-```
-https://aiwriter2026.vercel.app/api/article-preview?id=0c0eb739-994a-4bd3-9397-7c5c2b9e09aa
