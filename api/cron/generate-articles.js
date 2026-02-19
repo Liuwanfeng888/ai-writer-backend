@@ -2,7 +2,6 @@ import { getWeiboHot } from '../../services/services/weibo-hot.js';
 import { supabase } from '../../utils/supabase.js';
 import { generateArticle, selectTopics } from '../../services/ai-writer.js';
 import { formatCompleteArticle } from '../../services/formatter.js';
-
 export default async function handler(req, res) {
   // 添加CORS支持
   res.setHeader('Access-Control-Allow-Origin', '*');
